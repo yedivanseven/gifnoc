@@ -45,7 +45,7 @@ fn from_vars(prefix: &str, vars: impl Iterator<Item = (String, String)>) -> Valu
     for (key, value) in vars {
         if let Some(rest) = key.strip_prefix(&needle) {
             let path = rest.replace("__", ".").to_lowercase();
-            let parsed = serde_json::from_str(&value).unwrap_or_else(|_| Value::String(value));
+            let parsed = serde_json::from_str(&value).unwrap_or(Value::String(value));
             flat.insert(path, parsed);
         }
     }
