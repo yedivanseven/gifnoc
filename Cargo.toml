@@ -7,7 +7,7 @@ resolver = "2"
 
 [package]
 name = "gifnoc"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 description = "Type-safe configuration with layered overrides via a proc-macro DSL"
 license = "MIT"
@@ -16,7 +16,7 @@ keywords = ["config", "configuration", "cli", "env", "macro"]
 categories = ["config", "command-line-interface"]
 
 [dependencies]
-gifnoc-macros = { path = "gifnoc-macros", version = "0.1.1" }
+gifnoc-macros = { path = "gifnoc-macros", version = "0.1.2" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 toml = { version = "0.8", optional = true }
