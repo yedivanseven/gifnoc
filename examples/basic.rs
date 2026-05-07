@@ -1,5 +1,4 @@
-use gifnoc::{config, Configurable};
-
+use gifnoc::{Configurable, config};
 
 config! {
     Database {

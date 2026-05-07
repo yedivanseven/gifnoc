@@ -1,12 +1,9 @@
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{
+    Expr, Ident, Token, Type,
     parse::{Parse, ParseStream},
     parse_macro_input,
-    Expr,
-    Ident,
-    Token,
-    Type,
 };
 
 struct ConfigField {

@@ -87,8 +87,8 @@ extern crate self as gifnoc;
 
 mod nesting;
 
-pub mod env;
 pub mod args;
+pub mod env;
 
 #[cfg(feature = "toml")]
 pub mod toml;

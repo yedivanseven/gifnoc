@@ -1,5 +1,5 @@
-use std::path::Path;
 use serde_json::Value;
+use std::path::Path;
 
 /// Reads a TOML file and returns its contents as a [`serde_json::Value`].
 ///

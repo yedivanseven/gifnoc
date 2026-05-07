@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use serde_json::Value;
 use crate::nesting;
+use serde_json::Value;
+use std::collections::HashMap;
 
 /// Parses command-line arguments into positional actions and config flag overrides.
 ///
@@ -59,7 +59,10 @@ fn parse_from(args: impl Iterator<Item = String>) -> (Vec<String>, Value) {
     // collect positionals — everything before the first '--' arg
     while i < args.len() && !args[i].starts_with("--") {
         if args[i].starts_with('-') {
-            eprintln!("error: short-form flags are not supported: '{}'; use --key value or --key=value", args[i]);
+            eprintln!(
+                "error: short-form flags are not supported: '{}'; use --key value or --key=value",
+                args[i]
+            );
             std::process::exit(1);
         }
         positionals.push(args[i].clone());
@@ -79,7 +82,9 @@ fn parse_from(args: impl Iterator<Item = String>) -> (Vec<String>, Value) {
                 let key = rest.to_string();
                 i += 1;
                 if i >= args.len() || args[i].starts_with('-') {
-                    eprintln!("error: flag '--{key}' requires a value (use --{key}=<value> or --{key} <value>)");
+                    eprintln!(
+                        "error: flag '--{key}' requires a value (use --{key}=<value> or --{key} <value>)"
+                    );
                     std::process::exit(1);
                 }
                 let parsed = serde_json::from_str(&args[i])
@@ -88,7 +93,10 @@ fn parse_from(args: impl Iterator<Item = String>) -> (Vec<String>, Value) {
                 i += 1;
             }
         } else {
-            eprintln!("error: positional argument '{}' must come before all flags", arg);
+            eprintln!(
+                "error: positional argument '{}' must come before all flags",
+                arg
+            );
             std::process::exit(1);
         }
     }
@@ -102,7 +110,10 @@ mod tests {
     use serde_json::json;
 
     fn args(a: &[&str]) -> impl Iterator<Item = String> {
-        a.iter().map(|s| s.to_string()).collect::<Vec<_>>().into_iter()
+        a.iter()
+            .map(|s| s.to_string())
+            .collect::<Vec<_>>()
+            .into_iter()
     }
 
     #[test]

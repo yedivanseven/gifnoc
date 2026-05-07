@@ -1,4 +1,4 @@
-use gifnoc::{config, Configurable};
+use gifnoc::{Configurable, config};
 
 config! {
     RouteConfig {
@@ -34,7 +34,9 @@ struct Router {
 
 impl Router {
     fn new(config: &RouteConfig) -> Self {
-        Router { api_prefix: config.api_prefix.clone() }
+        Router {
+            api_prefix: config.api_prefix.clone(),
+        }
     }
 
     fn describe(&self) {
@@ -109,8 +111,8 @@ fn main() {
     for action in &actions {
         match action.as_str() {
             "serve" => app.server.run(),
-            "work"  => app.worker.run(),
-            other   => {
+            "work" => app.worker.run(),
+            other => {
                 eprintln!("error: unknown action '{other}'");
                 std::process::exit(1);
             }

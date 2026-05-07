@@ -1,4 +1,4 @@
-use gifnoc::{config, Configurable};
+use gifnoc::{Configurable, config};
 use serde_json::json;
 
 config! {
@@ -37,7 +37,7 @@ fn empty_update_is_noop() {
 fn top_level_field_override() {
     let config = AppConfig::default().update(json!({"name": "myapp"}));
     assert_eq!(config.name, "myapp");
-    assert!(!config.debug);      // unchanged
+    assert!(!config.debug); // unchanged
     assert_eq!(config.db.host, "localhost"); // unchanged
 }
 
@@ -45,8 +45,8 @@ fn top_level_field_override() {
 fn nested_override_preserves_siblings() {
     let config = AppConfig::default().update(json!({"db": {"host": "remotehost"}}));
     assert_eq!(config.db.host, "remotehost");
-    assert_eq!(config.db.port, 5432);  // sibling within db preserved
-    assert_eq!(config.name, "app");    // sibling at top level preserved
+    assert_eq!(config.db.port, 5432); // sibling within db preserved
+    assert_eq!(config.name, "app"); // sibling at top level preserved
 }
 
 #[test]
@@ -72,5 +72,5 @@ fn nested_override_across_layers() {
         .update(json!({"db": {"host": "host1", "port": 6000}}))
         .update(json!({"db": {"host": "host2"}}));
     assert_eq!(config.db.host, "host2"); // overridden
-    assert_eq!(config.db.port, 6000);   // survives second update
+    assert_eq!(config.db.port, 6000); // survives second update
 }

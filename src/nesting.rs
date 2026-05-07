@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use serde_json::{Map, Value};
+use std::collections::HashMap;
 
 pub fn flatten(value: Value) -> HashMap<String, Value> {
     let mut result = HashMap::new();
@@ -106,10 +106,7 @@ mod tests {
 
     #[test]
     fn nest_flat_keys() {
-        let map = HashMap::from([
-            ("a".to_string(), json!(1)),
-            ("b".to_string(), json!("two")),
-        ]);
+        let map = HashMap::from([("a".to_string(), json!(1)), ("b".to_string(), json!("two"))]);
         let result = nest(map);
         assert_eq!(result["a"], json!(1));
         assert_eq!(result["b"], json!("two"));
@@ -131,10 +128,7 @@ mod tests {
 
     #[test]
     fn nest_shared_prefix() {
-        let map = HashMap::from([
-            ("a.b".to_string(), json!(1)),
-            ("a.c".to_string(), json!(2)),
-        ]);
+        let map = HashMap::from([("a.b".to_string(), json!(1)), ("a.c".to_string(), json!(2))]);
         let result = nest(map);
         assert_eq!(result["a"]["b"], json!(1));
         assert_eq!(result["a"]["c"], json!(2));

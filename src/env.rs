@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use serde_json::Value;
 use crate::nesting;
+use serde_json::Value;
+use std::collections::HashMap;
 
 /// Reads environment variables with the given prefix into a [`serde_json::Value`].
 ///
@@ -45,8 +45,7 @@ fn from_vars(prefix: &str, vars: impl Iterator<Item = (String, String)>) -> Valu
     for (key, value) in vars {
         if let Some(rest) = key.strip_prefix(&needle) {
             let path = rest.replace("__", ".").to_lowercase();
-            let parsed = serde_json::from_str(&value)
-                .unwrap_or_else(|_| Value::String(value));
+            let parsed = serde_json::from_str(&value).unwrap_or_else(|_| Value::String(value));
             flat.insert(path, parsed);
         }
     }
@@ -110,11 +109,14 @@ mod tests {
 
     #[test]
     fn multiple_vars() {
-        let result = from_vars("APP", vars(&[
-            ("APP_HOST", "localhost"),
-            ("APP_PORT", "9000"),
-            ("OTHER_X", "ignored"),
-        ]));
+        let result = from_vars(
+            "APP",
+            vars(&[
+                ("APP_HOST", "localhost"),
+                ("APP_PORT", "9000"),
+                ("OTHER_X", "ignored"),
+            ]),
+        );
         assert_eq!(result["host"], json!("localhost"));
         assert_eq!(result["port"], json!(9000));
         assert_eq!(result.get("x"), None);
