@@ -19,7 +19,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+    - name: Format
+      run: cargo fmt --check
+    - name: Lint
+      run: cargo clippy --all-features -- -D warnings
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --all-features --verbose
     - name: Test
-      run: cargo test --verbose
+      run: cargo test --all-features --verbose
