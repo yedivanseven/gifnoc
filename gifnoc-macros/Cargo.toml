@@ -1,10 +1,11 @@
 [package]
 name = "gifnoc-macros"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "Proc-macro internals for gifnoc — use the gifnoc crate directly"
 license = "MIT"
 repository = "https://github.com/yedivanseven/gifnoc"
+categories = ["development-tools::procedural-macro-helpers"]
 
 [lib]
 proc-macro = true
