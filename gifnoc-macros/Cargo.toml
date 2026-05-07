@@ -1,0 +1,15 @@
+[package]
+name = "gifnoc-macros"
+version = "0.1.0"
+edition = "2024"
+description = "Proc-macro internals for gifnoc — use the gifnoc crate directly"
+license = "MIT"
+repository = "https://github.com/yedivanseven/gifnoc"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "2", features = ["full"] }
+quote = "1"
+proc-macro2 = "1"
