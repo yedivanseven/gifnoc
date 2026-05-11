@@ -8,7 +8,7 @@ _Type-safe and layered project configuration from multiple sources_
 Using various third-party tools, I often dispair when trying to configure them.
 Some options can only be set via a command-line flag, some are read from a
 config file, while still others can only be set via environment variables.
-This ambiguities are exacerbated when using third-party tools in docker or
+These ambiguities are exacerbated when using third-party tools in docker or
 docker compose.
 
 At the same time, I know from personal experience how tedious it can be to
@@ -34,7 +34,7 @@ configuration solution in `rust`.
   3. configuration file (TOML or YAML)
 - The precedence of these update is a matter of choice and taste.
 - Adding fields to the config struct is the only code change required to make
-  a new config option available in all mechanisms.
+  a new config option available for all mechanisms.
 
 ## Usage Example
 ```rust
