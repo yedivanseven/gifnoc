@@ -31,7 +31,7 @@ configuration solution in `rust`.
 - The project configuration has the form of a (nested) `struct`.
 - _All_ configuration options can be set by _all_ mechanisms:
   1. command-line arguments
-  2. environment arguments
+  2. environment variables
   3. configuration file (TOML or YAML)
 - The precedence of these update is a matter of choice and taste.
 - Adding fields to the (nested) config struct(s) is the only code change
