@@ -72,7 +72,7 @@ config! {
 fn main() {
     let cfg_file = gifnoc::toml::from_file("config.toml");  // Read config file
     let env_vars = gifnoc::env::with_prefix("APP");         // Parse environment
-    let (actions, args) = gifnoc::args::parse();            // Read command line
+    let (positional, flags) = gifnoc::args::parse();        // Read command line
 
     // Chose order of precedence
     let config = AppConfig::default()
@@ -81,7 +81,7 @@ fn main() {
         .update(args);
 
     // positional arguments can be flexibly used to steer app behaviour
-    println!("actions: {:?}", actions);
+    println!("positional arguments: {:?}", positional);
 
 }
 ```
