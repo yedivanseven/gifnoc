@@ -27,16 +27,18 @@ configuration solution in `rust`.
 
 ## Design
 - There is one and only one global project configuration.
-- The project configuration has the form of a nested `struct`.
+- Every configuration option has a default.
+- The project configuration has the form of a (nested) `struct`.
 - _All_ configuration options can be set by _all_ mechanisms:
   1. command-line arguments
   2. environment arguments
   3. configuration file (TOML or YAML)
 - The precedence of these update is a matter of choice and taste.
-- Adding fields to the config struct is the only code change required to make
-  a new config option available for all mechanisms.
+- Adding fields to the (nested) config struct(s) is the only code change
+  required to make a new option available to all mechanisms.
 
 ## Usage Example
+Consider the following (simplified) `main.rs` of your rust application `yourapp`.
 ```rust
 use gifnoc::{Configurable, config};
 
@@ -85,3 +87,24 @@ fn main() {
 
 }
 ```
+
+Part of your settings could be in a `config.toml`.
+```toml
+[server]
+port = 8888
+
+[server.routes]
+api_prefix = "/api/v1"
+```
+
+The other parts could be in the form of environment variables or command-line
+flags (in long form only).
+```bash
+APP_SERVER__PORT=9000 yourapp step1 step2 --server.routes.api_prefix "/api/v2"
+```
+
+Note the use of double underscore in the envrionment variable name to indicate
+nesting versus the dot.separation to indicate nesting for the command-line
+flag. With the chosen order of precedence, the server's port would now be
+9000 and the route's API prefix would be "/api/v2". The positional arguments
+`step1` and `step2` are free for your use as you see fit.
