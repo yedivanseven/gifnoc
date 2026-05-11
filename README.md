@@ -103,8 +103,8 @@ flags (in long form only).
 APP_SERVER__PORT=9000 yourapp step1 step2 --server.routes.api_prefix "/api/v2"
 ```
 
-Note the use of double underscore in the envrionment variable name to indicate
+Note the use of double underscore in the environment variable name to indicate
 nesting versus the dot.separation to indicate nesting for the command-line
 flag. With the chosen order of precedence, the server's port would now be
 9000 and the route's API prefix would be "/api/v2". The positional arguments
-`step1` and `step2` are free for your use as you see fit.
+`step1` and `step2` are free for use as you see fit.
