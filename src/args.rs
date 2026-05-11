@@ -46,10 +46,13 @@ use std::collections::HashMap;
 /// }
 /// ```
 pub fn parse() -> (Vec<String>, Value) {
-    parse_from(std::env::args().skip(1))
+    parse_from(std::env::args().skip(1)).unwrap_or_else(|err| {
+        eprintln!("{err}");
+        std::process::exit(1);
+    })
 }
 
-fn parse_from(args: impl Iterator<Item = String>) -> (Vec<String>, Value) {
+fn parse_from(args: impl Iterator<Item = String>) -> Result<(Vec<String>, Value), String> {
     let args: Vec<String> = args.collect();
     let mut positionals = Vec::new();
     let mut flat: HashMap<String, Value> = HashMap::new();
@@ -59,11 +62,11 @@ fn parse_from(args: impl Iterator<Item = String>) -> (Vec<String>, Value) {
     // collect positionals — everything before the first '--' arg
     while i < args.len() && !args[i].starts_with("--") {
         if args[i].starts_with('-') {
-            eprintln!(
-                "error: short-form flags are not supported: '{}'; use --key value or --key=value",
-                args[i]
-            );
-            std::process::exit(1);
+            return Err(format!(
+                "error: short-form flags are not supported: '{}'; \
+                 use --key value or --key=value",
+                 &args[i]
+            ))
         }
         positionals.push(args[i].clone());
         i += 1;
@@ -71,37 +74,35 @@ fn parse_from(args: impl Iterator<Item = String>) -> (Vec<String>, Value) {
 
     // parse flags
     while i < args.len() {
-        let arg = &args[i];
-        if let Some(rest) = arg.strip_prefix("--") {
+        if let Some(rest) = args[i].strip_prefix("--") {
             if let Some((key, value)) = rest.split_once('=') {
                 let parsed = serde_json::from_str(value)
-                    .unwrap_or_else(|_| Value::String(value.to_string()));
+                    .unwrap_or(Value::String(value.to_string()));
                 flat.insert(key.to_string(), parsed);
                 i += 1;
             } else {
                 let key = rest.to_string();
                 i += 1;
                 if i >= args.len() || args[i].starts_with('-') {
-                    eprintln!(
-                        "error: flag '--{key}' requires a value (use --{key}=<value> or --{key} <value>)"
-                    );
-                    std::process::exit(1);
+                    return Err(format!(
+                        "error: flag '--{key}' requires a value \
+                         (use --{key}=<value> or --{key} <value>)"
+                    ))
                 }
                 let parsed = serde_json::from_str(&args[i])
-                    .unwrap_or_else(|_| Value::String(args[i].clone()));
+                    .unwrap_or(Value::String(args[i].clone()));
                 flat.insert(key, parsed);
                 i += 1;
             }
         } else {
-            eprintln!(
+            return Err(format!(
                 "error: positional argument '{}' must come before all flags",
-                arg
-            );
-            std::process::exit(1);
+                &args[i]
+            ))
         }
     }
 
-    (positionals, nesting::nest(flat))
+    Ok((positionals, nesting::nest(flat)))
 }
 
 #[cfg(test)]
@@ -118,59 +119,83 @@ mod tests {
 
     #[test]
     fn empty_args() {
-        let (positionals, flags) = parse_from(args(&[]));
+        let (positionals, flags) = parse_from(args(&[])).unwrap();
         assert!(positionals.is_empty());
         assert_eq!(flags, json!({}));
     }
 
     #[test]
     fn only_positionals() {
-        let (positionals, flags) = parse_from(args(&["step1", "step2"]));
+        let (positionals, flags) = parse_from(args(&["step1", "step2"])).unwrap();
         assert_eq!(positionals, vec!["step1", "step2"]);
         assert_eq!(flags, json!({}));
     }
 
     #[test]
     fn flag_equals_form() {
-        let (_, flags) = parse_from(args(&["--host=localhost"]));
+        let (_, flags) = parse_from(args(&["--host=localhost"])).unwrap();
         assert_eq!(flags["host"], json!("localhost"));
     }
 
     #[test]
     fn flag_space_form() {
-        let (_, flags) = parse_from(args(&["--host", "localhost"]));
+        let (_, flags) = parse_from(args(&["--host", "localhost"])).unwrap();
         assert_eq!(flags["host"], json!("localhost"));
     }
 
     #[test]
     fn positionals_and_flags() {
-        let (positionals, flags) = parse_from(args(&["run", "--port", "8080"]));
+        let (positionals, flags) = parse_from(args(&["run", "--port", "8080"])).unwrap();
         assert_eq!(positionals, vec!["run"]);
         assert_eq!(flags["port"], json!(8080));
     }
 
     #[test]
     fn nested_key() {
-        let (_, flags) = parse_from(args(&["--server.port", "9000"]));
+        let (_, flags) = parse_from(args(&["--server.port", "9000"])).unwrap();
         assert_eq!(flags["server"]["port"], json!(9000));
     }
 
     #[test]
     fn json_bool_parsed() {
-        let (_, flags) = parse_from(args(&["--debug", "true"]));
+        let (_, flags) = parse_from(args(&["--debug", "true"])).unwrap();
         assert_eq!(flags["debug"], json!(true));
     }
 
     #[test]
     fn non_json_kept_as_string() {
-        let (_, flags) = parse_from(args(&["--name", "my app"]));
+        let (_, flags) = parse_from(args(&["--name", "my app"])).unwrap();
         assert_eq!(flags["name"], json!("my app"));
     }
 
     #[test]
     fn multiple_flags() {
-        let (_, flags) = parse_from(args(&["--host", "localhost", "--port=9000"]));
+        let (_, flags) = parse_from(args(&["--host", "localhost", "--port=9000"])).unwrap();
         assert_eq!(flags["host"], json!("localhost"));
         assert_eq!(flags["port"], json!(9000));
+    }
+
+    #[test]
+    fn short_flag_rejected() {
+        let err = parse_from(args(&["-x"])).unwrap_err();
+        assert!(err.contains("-x"));
+    }
+
+    #[test]
+    fn flag_missing_value_last_arg() {
+        let err = parse_from(args(&["--host"])).unwrap_err();
+        assert!(err.contains("host"));
+    }
+
+    #[test]
+    fn flag_missing_value_next_is_flag() {
+        let err = parse_from(args(&["--host", "--port"])).unwrap_err();
+        assert!(err.contains("host"));
+    }
+
+    #[test]
+    fn positional_after_flag_rejected() {
+        let err = parse_from(args(&["--host", "localhost", "extra"])).unwrap_err();
+        assert!(err.contains("extra"));
     }
 }
