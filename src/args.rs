@@ -65,8 +65,8 @@ fn parse_from(args: impl Iterator<Item = String>) -> Result<(Vec<String>, Value)
             return Err(format!(
                 "error: short-form flags are not supported: '{}'; \
                  use --key value or --key=value",
-                 &args[i]
-            ))
+                &args[i]
+            ));
         }
         positionals.push(args[i].clone());
         i += 1;
@@ -76,8 +76,8 @@ fn parse_from(args: impl Iterator<Item = String>) -> Result<(Vec<String>, Value)
     while i < args.len() {
         if let Some(rest) = args[i].strip_prefix("--") {
             if let Some((key, value)) = rest.split_once('=') {
-                let parsed = serde_json::from_str(value)
-                    .unwrap_or(Value::String(value.to_string()));
+                let parsed =
+                    serde_json::from_str(value).unwrap_or(Value::String(value.to_string()));
                 flat.insert(key.to_string(), parsed);
                 i += 1;
             } else {
@@ -87,10 +87,10 @@ fn parse_from(args: impl Iterator<Item = String>) -> Result<(Vec<String>, Value)
                     return Err(format!(
                         "error: flag '--{key}' requires a value \
                          (use --{key}=<value> or --{key} <value>)"
-                    ))
+                    ));
                 }
-                let parsed = serde_json::from_str(&args[i])
-                    .unwrap_or(Value::String(args[i].clone()));
+                let parsed =
+                    serde_json::from_str(&args[i]).unwrap_or(Value::String(args[i].clone()));
                 flat.insert(key, parsed);
                 i += 1;
             }
@@ -98,7 +98,7 @@ fn parse_from(args: impl Iterator<Item = String>) -> Result<(Vec<String>, Value)
             return Err(format!(
                 "error: positional argument '{}' must come before all flags",
                 &args[i]
-            ))
+            ));
         }
     }
 
