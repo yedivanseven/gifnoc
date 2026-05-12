@@ -74,3 +74,39 @@ fn nested_override_across_layers() {
     assert_eq!(config.db.host, "host2"); // overridden
     assert_eq!(config.db.port, 6000); // survives second update
 }
+
+#[test]
+fn dotted_key_override_preserves_siblings() {
+    let config = AppConfig::default().update(json!({"db.host": "remotehost"}));
+    assert_eq!(config.db.host, "remotehost");
+    assert_eq!(config.db.port, 5432); // sibling within db preserved
+    assert_eq!(config.name, "app"); // sibling at top level preserved
+}
+
+#[test]
+fn dotted_and_nested_styles_compose() {
+    let config = AppConfig::default().update(json!({
+        "db.host": "remotehost",
+        "db": {"port": 9999},
+    }));
+    assert_eq!(config.db.host, "remotehost");
+    assert_eq!(config.db.port, 9999);
+}
+
+#[test]
+#[should_panic(expected = "unknown config key: 'prot'")]
+fn unknown_top_level_key_panics() {
+    AppConfig::default().update(json!({"prot": 9000}));
+}
+
+#[test]
+#[should_panic(expected = "unknown config key: 'db.prot'")]
+fn unknown_nested_key_panics() {
+    AppConfig::default().update(json!({"db": {"prot": 9000}}));
+}
+
+#[test]
+#[should_panic(expected = "unknown config key: 'db.prot'")]
+fn unknown_dotted_key_panics() {
+    AppConfig::default().update(json!({"db.prot": 9000}));
+}
