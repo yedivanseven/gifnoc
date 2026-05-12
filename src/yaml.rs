@@ -32,6 +32,5 @@ pub fn from_file(path: impl AsRef<Path>) -> Value {
     let content = std::fs::read_to_string(path).unwrap();
     let parsed: Value = serde_yml::from_str(&content).unwrap();
     let flat = nesting::flatten(parsed);
-    let nested = nesting::nest(flat);
-    nested
+    nesting::nest(flat)
 }
