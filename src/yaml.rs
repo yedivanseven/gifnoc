@@ -6,7 +6,7 @@ use std::path::Path;
 ///
 /// The returned value is intended to be passed to [`Configurable::update`][crate::Configurable::update].
 /// Panics if the file cannot be read or contains invalid YAML. Dot-separated keys are parsed into
-/// hierarchically nested JSON values.
+/// hierarchically nested JSONs.
 ///
 /// Requires the `yaml` feature:
 /// ```toml
