@@ -1,10 +1,12 @@
+use crate::nesting;
 use serde_json::Value;
 use std::path::Path;
 
 /// Reads a YAML file and returns its contents as a [`serde_json::Value`].
 ///
 /// The returned value is intended to be passed to [`Configurable::update`][crate::Configurable::update].
-/// Panics if the file cannot be read or contains invalid YAML.
+/// Panics if the file cannot be read or contains invalid YAML. Dot-separated keys are parsed into
+/// hierarchically nested JSON values.
 ///
 /// Requires the `yaml` feature:
 /// ```toml
@@ -28,5 +30,8 @@ use std::path::Path;
 /// ```
 pub fn from_file(path: impl AsRef<Path>) -> Value {
     let content = std::fs::read_to_string(path).unwrap();
-    serde_yml::from_str(&content).unwrap()
+    let parsed: Value = serde_yml::from_str(&content).unwrap();
+    let flat = nesting::flatten(parsed);
+    let nested = nesting::nest(flat);
+    nested
 }
