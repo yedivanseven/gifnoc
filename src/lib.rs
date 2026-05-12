@@ -190,7 +190,13 @@ pub trait Configurable: serde::Serialize + serde::de::DeserializeOwned {
         Self: Sized,
     {
         let mut base = nesting::flatten(serde_json::to_value(self).unwrap());
-        base.extend(nesting::flatten(json));
+        let incoming = nesting::flatten(json);
+        for key in incoming.keys() {
+            if !base.contains_key(key) {
+                panic!("unknown config key: '{key}'");
+            }
+        }
+        base.extend(incoming);
         serde_json::from_value(nesting::nest(base)).unwrap()
     }
 }

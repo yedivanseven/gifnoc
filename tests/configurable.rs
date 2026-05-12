@@ -92,3 +92,21 @@ fn dotted_and_nested_styles_compose() {
     assert_eq!(config.db.host, "remotehost");
     assert_eq!(config.db.port, 9999);
 }
+
+#[test]
+#[should_panic(expected = "unknown config key: 'prot'")]
+fn unknown_top_level_key_panics() {
+    AppConfig::default().update(json!({"prot": 9000}));
+}
+
+#[test]
+#[should_panic(expected = "unknown config key: 'db.prot'")]
+fn unknown_nested_key_panics() {
+    AppConfig::default().update(json!({"db": {"prot": 9000}}));
+}
+
+#[test]
+#[should_panic(expected = "unknown config key: 'db.prot'")]
+fn unknown_dotted_key_panics() {
+    AppConfig::default().update(json!({"db.prot": 9000}));
+}
