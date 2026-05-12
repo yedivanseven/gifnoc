@@ -108,7 +108,6 @@ impl App {
 fn main() {
     let (actions, flags) = gifnoc::args::parse();
     let config = AppConfig::default()
-        .update(gifnoc::yaml::from_file("config.yml"))
         .update(gifnoc::env::with_prefix("APP"))
         .update(flags);
 

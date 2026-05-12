@@ -1,3 +1,0 @@
-server.port: 9000
-server:
-  routes.api_prefix: /api/v1
