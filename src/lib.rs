@@ -42,6 +42,7 @@
 //! |--------|----------|------------|
 //! | Environment variables | [`env::with_prefix`] | `APP_KEY`, `APP_SECTION__KEY` |
 //! | CLI flags | [`args::parse`] | `--key value`, `--section.key value` |
+//! | JSON file | [`json::from_file`] | round-trips [`Configurable::to_json`] output |
 //! | TOML file | [`toml::from_file`] | *(requires feature `toml`)* |
 //! | YAML file | [`yaml::from_file`] | *(requires feature `yaml`)* |
 //!
@@ -89,6 +90,7 @@ mod nesting;
 
 pub mod args;
 pub mod env;
+pub mod json;
 
 #[cfg(feature = "toml")]
 pub mod toml;
@@ -198,5 +200,40 @@ pub trait Configurable: serde::Serialize + serde::de::DeserializeOwned {
         }
         base.extend(incoming);
         serde_json::from_value(nesting::nest(base)).unwrap()
+    }
+
+    /// Returns a pretty-printed JSON representation, suitable for documenting
+    /// the parameters of a run. Typical patterns: log it once near `main` after
+    /// all sources have been layered (so your log pipeline ships it alongside
+    /// the run), or write it next to a batch job's output directory for later
+    /// inspection.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the config contains a value that is Serde-serializable but
+    /// not JSON-representable: non-finite floats (`NaN`, `Infinity`), or maps
+    /// with keys that are neither strings nor string-convertible. Realistic
+    /// config types do not hit these cases.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use gifnoc::{config, Configurable};
+    ///
+    /// config! {
+    ///     ServerConfig {
+    ///         host: String = "localhost",
+    ///         port: u32 = 8080u32,
+    ///     }
+    /// }
+    ///
+    /// let config = ServerConfig::default();
+    /// println!("{}", config.to_json());
+    /// ```
+    fn to_json(&self) -> String {
+        serde_json::to_string_pretty(self).expect(
+            "config contained a non-JSON-serializable \
+             value (NaN/Inf float or non-string map key)",
+        )
     }
 }
