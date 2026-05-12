@@ -74,3 +74,21 @@ fn nested_override_across_layers() {
     assert_eq!(config.db.host, "host2"); // overridden
     assert_eq!(config.db.port, 6000); // survives second update
 }
+
+#[test]
+fn dotted_key_override_preserves_siblings() {
+    let config = AppConfig::default().update(json!({"db.host": "remotehost"}));
+    assert_eq!(config.db.host, "remotehost");
+    assert_eq!(config.db.port, 5432); // sibling within db preserved
+    assert_eq!(config.name, "app"); // sibling at top level preserved
+}
+
+#[test]
+fn dotted_and_nested_styles_compose() {
+    let config = AppConfig::default().update(json!({
+        "db.host": "remotehost",
+        "db": {"port": 9999},
+    }));
+    assert_eq!(config.db.host, "remotehost");
+    assert_eq!(config.db.port, 9999);
+}
