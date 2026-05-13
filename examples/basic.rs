@@ -13,7 +13,7 @@ config! {
         age: u32 = 32u32,
         database: Database = Database::default(),
         tags: Vec<String> = vec![],
-        email: Option<String> = None,
+        email: Option<String> = Some("not given".into()),
     }
 }
 
@@ -24,9 +24,13 @@ fn main() {
     let json = serde_json::json!({
         "name": "Franz",
         "database.host": "remotehost",
+        "email": null,
+        "tags": ["foo", "bar"]
     });
 
     let config = config.update(json);
     println!("{} is {}", config.name, config.age);
+    println!("Email: {}", config.email.unwrap_or("not given".to_string()));
     println!("uri is {}:{}", config.database.host, config.database.port);
+    println!("tags:{:?}", config.tags);
 }

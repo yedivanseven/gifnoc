@@ -6,9 +6,6 @@ use syn::{
     parse_macro_input,
 };
 
-// TODO: consider supporting Option<T> fields with an optional default (e.g. `field: T = ?`
-// or `field: Option<T> = None`). Currently all fields require an explicit default and are
-// non-optional; passing JSON null for a plain T field will panic at deserialization time.
 struct ConfigField {
     name: Ident,
     ty: Type,
